@@ -1,0 +1,93 @@
+.taskbar {
+  position: relative;
+  z-index: 200;
+  width: 100%;
+  min-width: 1920px;
+  height: 72px;
+  display: grid;
+  grid-template-columns: 390px 1fr 360px;
+  align-items: center;
+  background: #17201d;
+  border-top: 1px solid #46534d;
+
+  button {
+    position: relative;
+    width: 58px;
+    height: 58px;
+    border-radius: 10px;
+
+    &::after {
+      content: '';
+      position: absolute;
+      left: 50%;
+      bottom: 6px;
+      width: 0;
+      height: 4px;
+      border-radius: 999px;
+      background: #7a7a7a;
+      transform: translateX(-50%);
+      transition:
+        width 180ms ease,
+        background-color 180ms ease;
+    }
+
+    &.is-running::after {
+      width: 24px;
+    }
+
+    &.is-active::after {
+      width: 46px;
+      background: #a9bbb2;
+    }
+  }
+}
+
+.taskbar-start {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding-left: 20px;
+}
+
+.start-button img {
+  width: 42px;
+  height: 42px;
+  opacity: 0.92;
+  filter: hue-rotate(60deg) saturate(120%);
+}
+
+.taskbar-search {
+  width: 285px;
+}
+
+.taskbar-apps {
+  display: flex;
+  gap: 14px;
+  padding-left: 26px;
+
+  img {
+    width: 40px;
+    height: 40px;
+  }
+}
+
+.system-tray {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 4px;
+  padding-right: 20px;
+
+  img {
+    width: 30px;
+    height: 30px;
+  }
+
+  time {
+    min-width: 96px;
+    display: grid;
+    justify-items: end;
+    color: #fff;
+    line-height: 1.2;
+  }
+}

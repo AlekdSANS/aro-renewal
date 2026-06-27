@@ -1,0 +1,44 @@
+.static-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 10000;
+  pointer-events: none;
+  opacity: 0.08;
+  background: url('/files/gif/static_noise.gif') center / 340px repeat;
+}
+
+.desktop-icons {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  z-index: 2;
+  display: grid;
+  gap: 10px;
+}
+
+.desktop-icon {
+  width: 116px;
+  min-height: 112px;
+  display: grid;
+  justify-items: center;
+  align-content: start;
+  gap: 8px;
+  padding: 8px;
+  border-radius: 8px;
+
+  img {
+    width: 84px;
+    height: 84px;
+    object-fit: contain;
+    -webkit-user-drag: none;
+  }
+
+  span {
+    padding: 3px 7px;
+    border-radius: 4px;
+    background: rgba(12,20,17,.7);
+    font: 11px "Courier New", monospace;
+    letter-spacing: .5px;
+    text-shadow: 0 2px 4px #000;
+  }
+}

@@ -1,0 +1,25 @@
+button {
+  font: inherit;
+}
+
+.desktop-icon,
+.file-item,
+.menu-app-grid button,
+.taskbar button,
+.start-menu-footer button,
+.vision-app button {
+  border: 0;
+  background: transparent;
+  color: #fff;
+  cursor: pointer;
+  user-select: none;
+}
+
+.desktop-icon:hover,
+.file-item:hover,
+.taskbar button:hover,
+.menu-app-grid button:hover,
+.start-menu-footer button:hover,
+.vision-app button:hover {
+  background: rgba(255, 255, 255, 0.1);
+}

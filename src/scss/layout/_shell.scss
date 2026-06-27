@@ -1,0 +1,20 @@
+.aro-shell {
+  position: fixed;
+  width: 1920px;
+  height: 1080px;
+  background: #050505;
+  display: grid;
+  grid-template-rows: 1008px 72px;
+  overflow: hidden;
+  transform-origin: top left;
+}
+
+.desktop {
+  position: relative;
+  width: 100%;
+  min-width: 1920px;
+  min-height: 1008px;
+  overflow: hidden;
+  background: #121212 url('/files/img/wallpaper.jpg') center / cover no-repeat;
+  isolation: isolate;
+}

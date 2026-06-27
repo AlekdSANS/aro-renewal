@@ -1,0 +1,129 @@
+.start-menu {
+  position: absolute;
+  left: 20px;
+  bottom: 20px;
+  z-index: 90;
+  width: 1000px;
+  height: 500px;
+  overflow: hidden;
+  border: 1px solid #53615b;
+  border-radius: 16px;
+  background: #1b2421;
+  color: #fff;
+  box-shadow: 0 24px 90px rgba(0, 0, 0, 0.65);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(190px);
+  transition:
+    opacity 500ms ease,
+    transform 500ms ease;
+
+  &.is-open {
+    opacity: 1;
+    pointer-events: auto;
+    transform: translateY(0);
+  }
+}
+
+.start-menu-main {
+  height: 400px;
+  display: grid;
+  grid-template-columns: 400px 1fr;
+  align-items: center;
+}
+
+.start-apps {
+  display: grid;
+  gap: 18px;
+  padding: 24px;
+}
+
+.menu-search,
+.taskbar-search {
+  position: relative;
+  display: block;
+}
+
+.menu-app-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+
+  button {
+    height: 112px;
+    display: grid;
+    justify-items: center;
+    align-content: center;
+    gap: 8px;
+    border-radius: 8px;
+    font-size: 14px;
+  }
+
+  img {
+    width: 58px;
+    height: 58px;
+    object-fit: contain;
+  }
+}
+
+.news-list {
+  height: 350px;
+  overflow: auto;
+  padding-right: 20px;
+
+  &::before { content: 'FACILITY BULLETINS // LOCAL CACHE'; display: block; margin: 0 0 8px 10px; color: #718078; font: 8px "Courier New", monospace; letter-spacing: 1px; }
+
+  article {
+    min-height: 104px;
+    display: grid;
+    grid-template-columns: 72px 1fr;
+    align-items: center;
+    gap: 16px;
+    margin: 10px 0;
+    padding: 10px;
+    border-radius: 8px;
+    background: #252f2b;
+    border: 1px solid #3f4b46;
+  }
+
+  img {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    background: #000;
+  }
+
+  h2 {
+    margin: 4px 0 7px;
+    font-size: 13px;
+    letter-spacing: .5px;
+  }
+
+  small { color: #75837c; font: 7px "Courier New", monospace; letter-spacing: 1px; }
+  p { margin: 0; color: #aab3ae; font-size: 10px; line-height: 1.4; }
+}
+
+.start-menu-footer {
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #111916;
+  border-top: 1px solid #46524d;
+
+  button {
+    height: 80px;
+    display: inline-flex;
+    align-items: center;
+    gap: 14px;
+    border-radius: 8px;
+    margin: 0 18px;
+    padding: 0 18px;
+  }
+
+  img {
+    width: 58px;
+    height: 58px;
+    filter: invert(0.9);
+  }
+}
