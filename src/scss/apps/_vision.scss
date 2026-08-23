@@ -1,33 +1,223 @@
-.vision-app { height: 100%; display: grid; grid-template-columns: 106px 300px 1fr; background: #d9dcd7; color: #19211e; font-family: "Courier New", monospace; }
-.vision-sidebar { padding: 16px 8px; display: flex; flex-direction: column; gap: 8px; background: #1b2522; border-right: 1px solid #46534d; }
-.vision-mark { width: 52px; height: 52px; margin: 3px auto 18px; display: grid; place-items: center; border: 1px solid #718078; color: #b8c3bd; font: 800 24px Arial, sans-serif; transform: rotate(45deg); }
-.vision-mark::first-letter { transform: rotate(-45deg); }
-.vision-sidebar button, .vision-contacts button { border: 0; background: transparent; cursor: pointer; }
-.vision-sidebar button { padding: 10px 4px; display: grid; justify-items: center; gap: 6px; border-radius: 9px; color: #8f9b95; font-size: 8px; text-transform: uppercase; }
-.vision-sidebar button:hover { background: #2e3a36; color: #fff; }
-.vision-sidebar img { width: 27px; height: 27px; filter: invert(1); opacity: .7; }
-.vision-sidebar > small { margin-top: auto; padding: 8px; color: #65726c; font-size: 7px; line-height: 1.5; letter-spacing: 1px; }
-.vision-contacts { padding: 20px 15px; background: #222c29; border-right: 1px solid #111815; }
-.vision-contacts > header { padding: 0 7px 15px; display: flex; justify-content: space-between; color: #77847e; font-size: 8px; letter-spacing: 1px; }
-.vision-contacts > header b { color: #aeb8b3; }
-.vision-contacts button { width: 100%; padding: 12px 10px; display: grid; grid-template-columns: 42px 1fr; align-items: center; gap: 10px; border-radius: 9px; color: #a9b3ae; text-align: left; }
-.vision-contacts button:hover, .vision-contacts button.active { background: #34413c; color: #fff; }
-.vision-contacts img { width: 42px; height: 42px; filter: grayscale(1); opacity: .8; }
-.vision-contacts button > span { display: grid; gap: 5px; }
-.vision-contacts strong { font: 700 11px Arial, sans-serif; }
-.vision-contacts small { color: #73817a; font-size: 7px; letter-spacing: .5px; }
-.vision-chat { min-width: 0; display: grid; grid-template-rows: 65px 1fr 64px; background: #d9dcd7; }
-.vision-chat > header { padding: 0 23px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #aeb5b0; }
-.vision-chat > header div { display: grid; gap: 4px; }
-.vision-chat > header strong { font: 700 14px Arial, sans-serif; }
-.vision-chat > header span { color: #747e79; font-size: 7px; letter-spacing: 1px; }
-.vision-chat > header > b { padding: 5px 7px; border: 1px solid #a65048; color: #a33d35; font-size: 7px; letter-spacing: 1px; }
-.vision-chat main { padding: 30px 8%; overflow: auto; background-image: linear-gradient(rgba(35,49,43,.035) 1px, transparent 1px); background-size: 100% 24px; }
-.channel-date { margin-bottom: 28px; color: #7d8782; font-size: 7px; text-align: center; letter-spacing: 1px; }
-.vision-chat main p { max-width: 570px; padding: 16px 18px; border-left: 3px solid #53645c; background: #eef0ec; box-shadow: 3px 3px 0 rgba(21,31,27,.08); font: 13px/1.5 Arial, sans-serif; }
-.vision-chat main p span { display: block; margin-bottom: 5px; color: #77817c; font: 7px "Courier New", monospace; }
-.channel-alert { margin: 35px auto; color: #a33d35; font-size: 9px; text-align: center; letter-spacing: 1px; }
-.channel-alert small { color: #8a716d; font-size: 7px; }
-.vision-chat > footer { padding: 12px 20px; display: flex; gap: 8px; border-top: 1px solid #aeb5b0; background: #ced2cc; }
-.vision-chat input { min-width: 0; flex: 1; padding: 0 13px; border: 1px solid #a8afa9; border-radius: 8px; background: #e5e8e3; color: #7c8581; }
-.vision-chat footer button { width: 70px; border: 0; border-radius: 8px; background: #59655f; color: #c4cbc7; font: 8px "Courier New", monospace; }
+.vision-app {
+	height: 100%;
+	display: grid;
+	grid-template-columns: 106px 300px 1fr;
+	background: #d9dcd7;
+	color: #19211e;
+	font-family: "Courier New", monospace;
+}
+.vision-sidebar {
+	padding: 16px 8px;
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	background: #1b2522;
+	border-right: 1px solid #46534d;
+}
+.vision-mark {
+	width: 52px;
+	height: 52px;
+	margin: 3px auto 18px;
+	display: grid;
+	place-items: center;
+	border: 1px solid #718078;
+	color: #b8c3bd;
+	font:
+		800 24px Arial,
+		sans-serif;
+	transform: rotate(45deg);
+}
+.vision-mark::first-letter {
+	transform: rotate(-45deg);
+}
+.vision-sidebar button,
+.vision-contacts button {
+	border: 0;
+	background: transparent;
+	cursor: pointer;
+}
+.vision-sidebar button {
+	padding: 10px 4px;
+	display: grid;
+	justify-items: center;
+	gap: 6px;
+	border-radius: 9px;
+	color: #8f9b95;
+	font-size: 8px;
+	text-transform: uppercase;
+}
+.vision-sidebar button:hover {
+	background: #2e3a36;
+	color: #fff;
+}
+.vision-sidebar img {
+	width: 27px;
+	height: 27px;
+	filter: invert(1);
+	opacity: 0.7;
+}
+.vision-sidebar > small {
+	margin-top: auto;
+	padding: 8px;
+	color: #65726c;
+	font-size: 7px;
+	line-height: 1.5;
+	letter-spacing: 1px;
+}
+.vision-contacts {
+	padding: 20px 15px;
+	background: #222c29;
+	border-right: 1px solid #111815;
+}
+.vision-contacts > header {
+	padding: 0 7px 15px;
+	display: flex;
+	justify-content: space-between;
+	color: #77847e;
+	font-size: 8px;
+	letter-spacing: 1px;
+}
+.vision-contacts > header b {
+	color: #aeb8b3;
+}
+.vision-contacts button {
+	width: 100%;
+	padding: 12px 10px;
+	display: grid;
+	grid-template-columns: 42px 1fr;
+	align-items: center;
+	gap: 10px;
+	border-radius: 9px;
+	color: #a9b3ae;
+	text-align: left;
+}
+.vision-contacts button:hover,
+.vision-contacts button.active {
+	background: #34413c;
+	color: #fff;
+}
+.vision-contacts img {
+	width: 42px;
+	height: 42px;
+	filter: grayscale(1);
+	opacity: 0.8;
+}
+.vision-contacts button > span {
+	display: grid;
+	gap: 5px;
+}
+.vision-contacts strong {
+	font:
+		700 13px Arial,
+		sans-serif;
+}
+.vision-contacts small {
+	color: #73817a;
+	font-size: 9px;
+	letter-spacing: 0.5px;
+}
+.vision-chat {
+	min-width: 0;
+	display: grid;
+	grid-template-rows: 65px 1fr 64px;
+	background: #d9dcd7;
+}
+.vision-chat > header {
+	padding: 0 23px;
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	border-bottom: 1px solid #aeb5b0;
+}
+.vision-chat > header div {
+	display: grid;
+	gap: 4px;
+}
+.vision-chat > header strong {
+	font:
+		700 16px Arial,
+		sans-serif;
+}
+.vision-chat > header span {
+	color: #747e79;
+	font-size: 7px;
+	letter-spacing: 1px;
+}
+.vision-chat > header > b {
+	padding: 5px 7px;
+	border: 1px solid #a65048;
+	color: #a33d35;
+	font-size: 7px;
+	letter-spacing: 1px;
+}
+.vision-chat main {
+	padding: 30px 8%;
+	overflow: auto;
+	background-image: linear-gradient(
+		rgba(35, 49, 43, 0.035) 1px,
+		transparent 1px
+	);
+	background-size: 100% 24px;
+}
+.channel-date {
+	margin-bottom: 28px;
+	color: #7d8782;
+	font-size: 7px;
+	text-align: center;
+	letter-spacing: 1px;
+}
+.vision-chat main p {
+	max-width: 620px;
+	padding: 17px 19px;
+	border-left: 3px solid #53645c;
+	background: #eef0ec;
+	box-shadow: 3px 3px 0 rgba(21, 31, 27, 0.08);
+	font:
+		15px/1.5 Arial,
+		sans-serif;
+}
+.vision-chat main p span {
+	display: block;
+	margin-bottom: 5px;
+	color: #77817c;
+	font:
+		7px "Courier New",
+		monospace;
+}
+.channel-alert {
+	margin: 35px auto;
+	color: #a33d35;
+	font-size: 9px;
+	text-align: center;
+	letter-spacing: 1px;
+}
+.channel-alert small {
+	color: #8a716d;
+	font-size: 7px;
+}
+.vision-chat > footer {
+	padding: 12px 20px;
+	display: flex;
+	gap: 8px;
+	border-top: 1px solid #aeb5b0;
+	background: #ced2cc;
+}
+.vision-chat input {
+	min-width: 0;
+	flex: 1;
+	padding: 0 13px;
+	border: 1px solid #a8afa9;
+	border-radius: 8px;
+	background: #e5e8e3;
+	color: #7c8581;
+}
+.vision-chat footer button {
+	width: 70px;
+	border: 0;
+	border-radius: 8px;
+	background: #59655f;
+	color: #c4cbc7;
+	font:
+		8px "Courier New",
+		monospace;
+}

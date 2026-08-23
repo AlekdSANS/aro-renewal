@@ -24,6 +24,10 @@ const WINDOW_PRESETS = {
 		open: { x: 500, y: 100, width: 1200, height: 700 },
 		closed: { x: 560, y: 950, width: 100, height: 100 },
 	},
+	vscode: {
+		open: { x: 360, y: 55, width: 1320, height: 850 },
+		closed: { x: 520, y: 950, width: 100, height: 100 },
+	},
 };
 
 const desktopFolders = [
@@ -78,9 +82,24 @@ const videos = [
 ];
 
 const documents = [
-	{ id: "file1", label: "ARO-2710-RU.pdf", src: "files/doc/ARO-2710-RU.pdf", meta: "CONTAMINATION · L3" },
-	{ id: "file2", label: "ARO-8761.pdf", src: "files/doc/ARO-8761.pdf", meta: "ANOMALY FILE · L2" },
-	{ id: "file3", label: "ARO-0923.pdf", src: "files/doc/ARO-0923.pdf", meta: "ARCHIVE COPY · L2" },
+	{
+		id: "file1",
+		label: "ARO-2710-RU.pdf",
+		src: "files/doc/ARO-2710-RU.pdf",
+		meta: "CONTAMINATION · L3",
+	},
+	{
+		id: "file2",
+		label: "ARO-8761.pdf",
+		src: "files/doc/ARO-8761.pdf",
+		meta: "ANOMALY FILE · L2",
+	},
+	{
+		id: "file3",
+		label: "ARO-0923.pdf",
+		src: "files/doc/ARO-0923.pdf",
+		meta: "ARCHIVE COPY · L2",
+	},
 ];
 
 const menuApps = [
@@ -91,7 +110,7 @@ const menuApps = [
 		icon: "files/img/house_black.png",
 		invert: true,
 	},
-	{ id: "vscode", label: "Visual Studio", icon: "files/img/visual-studio.png" },
+	{ id: "vscode", label: "Log Checker", icon: "files/img/visual-studio.png" },
 	{
 		id: "profile",
 		label: "Profile",
@@ -115,7 +134,7 @@ const taskbarApps = [
 		label: "Vision",
 		invert: true,
 	},
-	{ id: "vscode", icon: "files/img/visual-studio.png", label: "Visual Studio" },
+	{ id: "vscode", icon: "files/img/visual-studio.png", label: "Log Checker" },
 	{
 		id: "profile",
 		icon: "files/img/manager.png",
@@ -126,7 +145,7 @@ const taskbarApps = [
 ];
 
 function App() {
-  const viewportScale = useViewportScale()
+	const viewportScale = useViewportScale();
 	const [introVisible, setIntroVisible] = useState(
 		() => sessionStorage.getItem("introPlayed") !== "true",
 	);
@@ -142,6 +161,7 @@ function App() {
 		"browser",
 		"profile",
 		"vision",
+		"vscode",
 	]);
 	const [windows, setWindows] = useState(() =>
 		Object.fromEntries(
@@ -181,11 +201,24 @@ function App() {
 					const base = WINDOW_PRESETS[id].open;
 					const width = Math.round(base.width * growth);
 					const height = Math.round(base.height * growth);
-					const x = clamp(win.open ? win.x : win.restore.x, 0, Math.max(0, desktopWidth - width));
-					const y = clamp(win.open ? win.y : win.restore.y, 0, Math.max(0, desktopHeight - height));
+					const x = clamp(
+						win.open ? win.x : win.restore.x,
+						0,
+						Math.max(0, desktopWidth - width),
+					);
+					const y = clamp(
+						win.open ? win.y : win.restore.y,
+						0,
+						Math.max(0, desktopHeight - height),
+					);
 					const restore = { ...win.restore, x, y, width, height };
 
-					return [id, win.open ? { ...win, x, y, width, height, restore } : { ...win, restore }];
+					return [
+						id,
+						win.open
+							? { ...win, x, y, width, height, restore }
+							: { ...win, restore },
+					];
 				}),
 			),
 		);
@@ -303,13 +336,17 @@ function App() {
 		const localPointerY = (event.clientY - desktop.top) / interfaceScale;
 		const restoredX = win.maximized
 			? clamp(
-				localPointerX - win.width * (localPointerX / logicalDesktopWidth),
-				0,
-				Math.max(0, logicalDesktopWidth - win.width),
-			)
+					localPointerX - win.width * (localPointerX / logicalDesktopWidth),
+					0,
+					Math.max(0, logicalDesktopWidth - win.width),
+				)
 			: win.x;
 		const restoredY = win.maximized
-			? clamp(localPointerY - 25, 0, Math.max(0, logicalDesktopHeight - win.height))
+			? clamp(
+					localPointerY - 25,
+					0,
+					Math.max(0, logicalDesktopHeight - win.height),
+				)
 			: win.y;
 
 		if (win.maximized) {
@@ -377,14 +414,27 @@ function App() {
 			const minWidth = 480;
 			const minHeight = 320;
 
-			if (resize.direction.includes("e")) right = clamp(right + dx, left + minWidth, resize.desktopWidth);
-			if (resize.direction.includes("s")) bottom = clamp(bottom + dy, top + minHeight, resize.desktopHeight);
-			if (resize.direction.includes("w")) left = clamp(left + dx, 0, right - minWidth);
-			if (resize.direction.includes("n")) top = clamp(top + dy, 0, bottom - minHeight);
+			if (resize.direction.includes("e"))
+				right = clamp(right + dx, left + minWidth, resize.desktopWidth);
+			if (resize.direction.includes("s"))
+				bottom = clamp(bottom + dy, top + minHeight, resize.desktopHeight);
+			if (resize.direction.includes("w"))
+				left = clamp(left + dx, 0, right - minWidth);
+			if (resize.direction.includes("n"))
+				top = clamp(top + dy, 0, bottom - minHeight);
 
 			setWindows((current) => {
-				const resized = { ...current[resize.id], x: left, y: top, width: right - left, height: bottom - top };
-				return { ...current, [resize.id]: { ...resized, restore: getRestoreState(resized) } };
+				const resized = {
+					...current[resize.id],
+					x: left,
+					y: top,
+					width: right - left,
+					height: bottom - top,
+				};
+				return {
+					...current,
+					[resize.id]: { ...resized, restore: getRestoreState(resized) },
+				};
 			});
 			return;
 		}
@@ -392,8 +442,10 @@ function App() {
 		const drag = dragRef.current;
 		if (drag) {
 			const preset = windows[drag.id];
-			const nextX = drag.initialX + (event.clientX - drag.startX) / drag.interfaceScale;
-			const nextY = drag.initialY + (event.clientY - drag.startY) / drag.interfaceScale;
+			const nextX =
+				drag.initialX + (event.clientX - drag.startX) / drag.interfaceScale;
+			const nextY =
+				drag.initialY + (event.clientY - drag.startY) / drag.interfaceScale;
 			const maxX = Math.max(0, drag.desktopWidth - preset.width);
 			const maxY = Math.max(0, drag.desktopHeight - preset.height);
 			setWindows((current) => ({
@@ -497,7 +549,17 @@ function App() {
 	};
 
 	return (
-		<div className={`aro-shell ${viewportScale.expanded ? "is-expanded" : ""}`} style={{ transform: `scale(${viewportScale.scale})`, left: viewportScale.left, top: viewportScale.top, width: viewportScale.width, height: viewportScale.height, gridTemplateRows: `${viewportScale.height - 72}px 72px` }}>
+		<div
+			className={`aro-shell ${viewportScale.expanded ? "is-expanded" : ""}`}
+			style={{
+				transform: `scale(${viewportScale.scale})`,
+				left: viewportScale.left,
+				top: viewportScale.top,
+				width: viewportScale.width,
+				height: viewportScale.height,
+				gridTemplateRows: `${viewportScale.height - 72}px 72px`,
+			}}
+		>
 			<div
 				className="desktop"
 				ref={desktopRef}
@@ -535,26 +597,23 @@ function App() {
 					onDragStart={startDrag}
 					onResizeStart={startResize}
 				>
-					<div className="file-grid">
-						{videos.map((video) => (
-							<button
-								type="button"
-								className="file-item"
-								key={video.id}
-								onDoubleClick={() =>
-									setMedia({
-										type: "video",
-										src: video.src,
-										title: video.title,
-									})
-								}
-							>
-								<img src={asset(video.thumb)} alt="" />
-								<span>{video.title}</span>
-								<small>{video.meta}</small>
-							</button>
-						))}
-					</div>
+					<ExplorerApp
+						title="Surveillance Archive"
+						path="ZONE 21 / RECORDINGS"
+						items={videos.map((video) => ({
+							...video,
+							label: video.title,
+							icon: video.thumb,
+							mediaType: "video",
+						}))}
+						onOpen={(item) =>
+							setMedia({
+								type: item.mediaType,
+								src: item.src,
+								title: item.label,
+							})
+						}
+					/>
 				</FolderWindow>
 
 				<FolderWindow
@@ -572,37 +631,32 @@ function App() {
 					onDragStart={startDrag}
 					onResizeStart={startResize}
 				>
-					<div className="file-grid">
-						{documents.map((doc) => (
-							<button
-								type="button"
-								className="file-item"
-								key={doc.id}
-								onDoubleClick={() =>
-									setMedia({ type: "pdf", src: doc.src, title: doc.label })
-								}
-							>
-								<img src={asset("files/img/pdf.png")} alt="" />
-								<span>{doc.label}</span>
-								<small>{doc.meta}</small>
-							</button>
-						))}
-						<button
-							type="button"
-							className="file-item"
-							onDoubleClick={() =>
-								setMedia({
-									type: "audio",
-									src: "files/mp3/audio1.MP3",
-									title: "sound1.mp3",
-								})
-							}
-						>
-							<img src={asset("files/img/mp3.png")} alt="" />
-							<span>sound1.mp3</span>
-							<small>AUDIO TRACE · UNKNOWN</small>
-						</button>
-					</div>
+					<ExplorerApp
+						title="Incident Files"
+						path="ZONE 21 / INCIDENT ARCHIVE"
+						items={[
+							...documents.map((doc) => ({
+								...doc,
+								icon: "files/img/pdf.png",
+								mediaType: "pdf",
+							})),
+							{
+								id: "audio1",
+								label: "sound1.mp3",
+								src: "files/mp3/audio1.MP3",
+								icon: "files/img/mp3.png",
+								mediaType: "audio",
+								meta: "AUDIO TRACE · UNKNOWN",
+							},
+						]}
+						onOpen={(item) =>
+							setMedia({
+								type: item.mediaType,
+								src: item.src,
+								title: item.label,
+							})
+						}
+					/>
 				</FolderWindow>
 
 				<AppWindow
@@ -621,6 +675,24 @@ function App() {
 					onResizeStart={startResize}
 				>
 					<BrowserApp onRequestClose={() => closeWindow("browser")} />
+				</AppWindow>
+
+				<AppWindow
+					id="vscode"
+					title="ARO Log Checker — CORE-C4-TUNNELS.DAT"
+					win={windows.vscode}
+					zIndex={zIndexes.vscode}
+					active={activeWindow === "vscode"}
+					dragging={draggingWindow === "vscode"}
+					resizing={resizingWindow === "vscode"}
+					onFocus={focusWindow}
+					onClose={closeWindow}
+					onMinimize={minimizeWindow}
+					onMaximize={toggleMaximize}
+					onDragStart={startDrag}
+					onResizeStart={startResize}
+				>
+					<LogCheckerApp />
 				</AppWindow>
 
 				<AppWindow
@@ -659,11 +731,7 @@ function App() {
 					<VisionApp />
 				</AppWindow>
 
-				<StartMenu
-					open={menuOpen}
-					openWindow={openWindow}
-					toggleWindow={toggleWindow}
-				/>
+				<StartMenu open={menuOpen} toggleWindow={toggleWindow} />
 				{selection && <SelectionBox selection={selection} />}
 				{media && <MediaOverlay media={media} onClose={() => setMedia(null)} />}
 			</div>
@@ -710,7 +778,11 @@ function App() {
 						/>
 					</button>
 					<button type="button" title="Wi-Fi">
-						<img className="invert" src={asset("files/img/wifi2.png")} alt="" />
+						<img
+							className="invert"
+							src={asset("files/img/no-wifi.png")}
+							alt=""
+						/>
 					</button>
 					<button type="button" title="Volume">
 						<img
@@ -791,14 +863,15 @@ function AppWindow({
 				onPointerDown={(event) => onDragStart(event, id)}
 			/>
 			<div className="window-body">{children}</div>
-			{!win.maximized && ["n", "ne", "e", "se", "s", "sw", "w", "nw"].map((direction) => (
-				<div
-					className={`resize-handle resize-handle--${direction}`}
-					key={direction}
-					onPointerDown={(event) => onResizeStart(event, id, direction)}
-					aria-hidden="true"
-				/>
-			))}
+			{!win.maximized &&
+				["n", "ne", "e", "se", "s", "sw", "w", "nw"].map((direction) => (
+					<div
+						className={`resize-handle resize-handle--${direction}`}
+						key={direction}
+						onPointerDown={(event) => onResizeStart(event, id, direction)}
+						aria-hidden="true"
+					/>
+				))}
 		</article>
 	);
 }
@@ -849,6 +922,165 @@ function WindowHeader({
 				</button>
 			</div>
 		</header>
+	);
+}
+
+function ExplorerApp({ title, path, items, onOpen }) {
+	const [query, setQuery] = useState("");
+	const [category, setCategory] = useState("all");
+	const [view, setView] = useState("grid");
+	const [selectedId, setSelectedId] = useState(null);
+	const categories = [
+		["all", "All records"],
+		["incident", "Incident media"],
+		["restricted", "Restricted"],
+	];
+	const visibleItems = items.filter((item) => {
+		const text = `${item.label} ${item.meta}`.toLowerCase();
+		const matchesSearch = text.includes(query.toLowerCase());
+		const matchesCategory =
+			category === "all" ||
+			(category === "incident" && /incident|cam|trace/i.test(text)) ||
+			(category === "restricted" &&
+				/l3|damaged|corrupt|unknown|contamination/i.test(text));
+		return matchesSearch && matchesCategory;
+	});
+	const selectedItem = items.find((item) => item.id === selectedId);
+
+	return (
+		<section className="explorer-app">
+			<header className="explorer-toolbar">
+				<button
+					type="button"
+					className="explorer-home"
+					onClick={() => {
+						setCategory("all");
+						setQuery("");
+						setSelectedId(null);
+					}}
+					title="Archive root"
+				>
+					⌂
+				</button>
+				<div className="explorer-path">
+					<button type="button" onClick={() => setCategory("all")}>
+						ARO ARCHIVE
+					</button>
+					<span>›</span>
+					<strong>{path}</strong>
+				</div>
+				<label className="explorer-search">
+					<span>⌕</span>
+					<input
+						value={query}
+						onChange={(event) => {
+							setQuery(event.target.value);
+							setSelectedId(null);
+						}}
+						placeholder="Search records"
+					/>
+					{query && (
+						<button
+							type="button"
+							onClick={() => setQuery("")}
+							aria-label="Clear search"
+						>
+							×
+						</button>
+					)}
+				</label>
+			</header>
+			<div className="explorer-layout">
+				<aside className="explorer-sidebar">
+					<p>QUICK ACCESS</p>
+					{categories.map(([id, label]) => (
+						<button
+							type="button"
+							className={category === id ? "active" : ""}
+							onClick={() => {
+								setCategory(id);
+								setSelectedId(null);
+							}}
+							key={id}
+						>
+							<img src={asset("files/img/folder.png")} alt="" />
+							<span>{label}</span>
+						</button>
+					))}
+					<div className="storage-meter">
+						<span>LOCAL CACHE</span>
+						<i>
+							<b />
+						</i>
+						<small>71% INTEGRITY</small>
+					</div>
+				</aside>
+				<main className="explorer-content">
+					<header>
+						<div>
+							<p>ARO INTERNAL STORAGE</p>
+							<h1>{title}</h1>
+							<span>
+								{visibleItems.length}{" "}
+								{visibleItems.length === 1 ? "record" : "records"}
+							</span>
+						</div>
+						<div className="view-controls">
+							<button
+								type="button"
+								className={view === "grid" ? "active" : ""}
+								onClick={() => setView("grid")}
+								title="Grid view"
+							>
+								▦
+							</button>
+							<button
+								type="button"
+								className={view === "list" ? "active" : ""}
+								onClick={() => setView("list")}
+								title="List view"
+							>
+								☷
+							</button>
+						</div>
+					</header>
+					<div className={`file-grid file-grid--${view}`}>
+						{visibleItems.map((item) => (
+							<button
+								type="button"
+								className={`file-item ${selectedId === item.id ? "selected" : ""}`}
+								onClick={() => setSelectedId(item.id)}
+								onDoubleClick={() => onOpen(item)}
+								key={item.id}
+							>
+								<img src={asset(item.icon)} alt="" />
+								<span>{item.label}</span>
+								<small>{item.meta}</small>
+							</button>
+						))}
+						{visibleItems.length === 0 && (
+							<div className="empty-folder">
+								<img src={asset("files/img/folder.png")} alt="" />
+								<strong>No matching records</strong>
+								<span>Change the category or search term.</span>
+							</div>
+						)}
+					</div>
+					<footer>
+						<span>
+							{selectedItem
+								? `${selectedItem.label} // ${selectedItem.meta}`
+								: "SELECT A RECORD · DOUBLE-CLICK TO OPEN"}
+						</span>
+						{selectedItem && (
+							<button type="button" onClick={() => onOpen(selectedItem)}>
+								OPEN RECORD
+							</button>
+						)}
+					</footer>
+				</main>
+			</div>
+		</section>
 	);
 }
 
@@ -1313,7 +1545,7 @@ function ProfileApp() {
 				<div className="aro-wordmark">
 					<span>ARO</span>
 					<small>
-						ABYSSAL RESEARCH
+						ANOMALY RESEARCH
 						<br />
 						ORGANIZATION
 					</small>
@@ -1408,7 +1640,7 @@ function PersonnelLogin({ onSubmit, error, busy }) {
 				<div className="aro-wordmark">
 					<span>ARO</span>
 					<small>
-						ABYSSAL RESEARCH
+						ANOMALY RESEARCH
 						<br />
 						ORGANIZATION
 					</small>
@@ -1573,6 +1805,386 @@ function AccessList({ title, items, denied = false }) {
 	);
 }
 
+const _recoveredLogs = [
+	{
+		time: "17 MAY 2025 17:31",
+		author: "DANIEL_HUGHES",
+		text: "Сегодня в дата-центре снова сбой… Но дело не в технике. Наши архивы сами пишут данные. Словно кто-то оставляет заметки в пустых файлах. Одна из них сказала: «Он уже дышит за твоей спиной». Это точно не розыгрыш.",
+	},
+	{
+		time: "19 MAY 2025 07:13",
+		author: "CPT_ANNA_SATORO",
+		text: "Я видела это. Внизу, за стеклом камеры ARO-XXXX. Оно смотрело прямо на меня, хотя у него нет глаз. Оно знало. Я подала рапорт о неполадках, но его проигнорировали. Что-то готовится. Это... близко.",
+	},
+	{
+		time: "19 MAY 2025 17:21",
+		author: "MAYLS_KAUFMAN",
+		text: "...в туннелях... что-то двигается. не техника. не вода. оно не должно быть здесь. скребёт по трубам... не звук, а... поиск, как будто хочет найти вход... или выход. я чувствую... взгляды. много. не мигают. не двигаются. только смотрят. всегда смотрят...",
+	},
+];
+
+const englishRecoveredLogs = [
+	{
+		time: "17 MAY 2025 17:31",
+		author: "DANIEL_HUGHES",
+		text: "Another failure in the data center today... But this is not a technical problem. Our archives are writing data by themselves, as if someone were leaving notes inside empty files. One of them said: 'He is already breathing behind you.' This is definitely not a prank.",
+	},
+	{
+		time: "19 MAY 2025 07:13",
+		author: "CPT_ANNA_SATORO",
+		text: "I saw it. Down below, behind the glass of camera ARO-XXXX. It looked directly at me, even though it had no eyes. It knew. I filed a malfunction report, but it was ignored. Something is preparing. It is... close.",
+	},
+	{
+		time: "19 MAY 2025 17:21",
+		author: "MAYLS_KAUFMAN",
+		text: "...in the tunnels... something is moving. Not machinery. Not water. It should not be here. It is scraping along the pipes... not a sound, but... a search, as if it wants to find an entrance... or an exit. I can feel... eyes. So many. They do not blink. They do not move. They only watch. Always watching...",
+	},
+];
+
+function LogCheckerApp() {
+	const [stage, setStage] = useState(0);
+	const [command, setCommand] = useState("");
+	const [history, setHistory] = useState([
+		"ARO DECIPHER SHELL 4.8.12",
+		"Type 'help' for available commands.",
+	]);
+	const [decrypting, setDecrypting] = useState(false);
+	const [decryptProgress, setDecryptProgress] = useState(67);
+	const [selectedFile, setSelectedFile] = useState("core");
+	const [terminalView, setTerminalView] = useState("terminal");
+	const terminalRef = useRef(null);
+	const documentScrollRef = useRef(null);
+	const timersRef = useRef([]);
+	useEffect(() => () => timersRef.current.forEach(window.clearTimeout), []);
+	const run = (nextStage, message) => {
+		setStage((current) => Math.max(current, nextStage));
+		setHistory((lines) => [...lines, message]);
+	};
+	const openRecoveredLog = (index) => {
+		setSelectedFile(`log-${index}`);
+		window.requestAnimationFrame(() => {
+			const container = documentScrollRef.current;
+			const target = document.getElementById(`recovered-log-${index}`);
+			if (!container || !target) return;
+			const top =
+				container.scrollTop +
+				target.getBoundingClientRect().top -
+				container.getBoundingClientRect().top -
+				16;
+			container.scrollTo({ top: Math.max(0, top), behavior: "smooth" });
+		});
+	};
+	const startDecryption = () => {
+		if (decrypting || stage < 2) return;
+		setDecrypting(true);
+		setHistory((lines) => [...lines, "> decrypt --all"]);
+		const output = [
+			"[00:00.114] Mounting corrupted archive volume... OK",
+			"[00:00.482] Reading block map 2203-C... 16 sectors found",
+			"[00:01.037] Loading MORSE_TX translation table... OK",
+			"[00:01.428] Rebuilding damaged headers... 41%",
+			"[00:01.906] Extracting DANIEL_HUGHES... OK",
+			"[00:02.337] Extracting CPT_ANNA_SATORO... OK",
+			"[00:02.811] Extracting MAYLS_KAUFMAN... OK",
+			"[WARNING] Unknown signal detected in trailing data",
+			"RESTORE COMPLETE // 3 LOGS RECOVERED",
+		];
+		output.forEach((line, index) => {
+			const timer = window.setTimeout(
+				() => {
+					setHistory((lines) => [...lines, line]);
+					setDecryptProgress(
+						Math.min(100, 67 + Math.round(((index + 1) / output.length) * 33)),
+					);
+					terminalRef.current?.scrollTo({
+						top: terminalRef.current.scrollHeight,
+						behavior: "smooth",
+					});
+					if (index === output.length - 1) {
+						setStage(3);
+						setDecrypting(false);
+					}
+				},
+				420 * (index + 1),
+			);
+			timersRef.current.push(timer);
+		});
+	};
+	const submit = (event) => {
+		event.preventDefault();
+		const value = command.trim().toLowerCase();
+		setCommand("");
+		if (!value) return;
+		if (value === "clear") return setHistory([]);
+		const actions = {
+			help: () =>
+				setHistory((h) => [
+					...h,
+					"> " + value,
+					"scan  verify  decrypt  status  clear",
+				]),
+			scan: () =>
+				run(
+					1,
+					"> scan --file CORE-C4-TUNNELS.DAT\n3 recoverable blocks located.",
+				),
+			verify: () =>
+				run(2, "> verify --block 2203-C\nMorse translation key accepted."),
+			decrypt: startDecryption,
+			status: () =>
+				setHistory((h) => [
+					...h,
+					"> " + value,
+					`Decryption progress: ${[8, 34, 67, 100][stage]}%`,
+				]),
+		};
+		(
+			actions[value] ||
+			(() =>
+				setHistory((h) => [...h, "> " + value, `Unknown command: ${value}`]))
+		)();
+		window.setTimeout(
+			() => terminalRef.current?.scrollTo(0, terminalRef.current.scrollHeight),
+			0,
+		);
+	};
+
+	return (
+		<section className="log-checker">
+			<header className="log-toolbar">
+				<div className="log-brand">
+					<b>LC</b>
+					<span>
+						LOG CHECKER<small>ARO FORENSIC TOOLS</small>
+					</span>
+				</div>
+				<div className="log-actions">
+					<button
+						type="button"
+						onClick={() =>
+							run(1, "Quick scan complete. 3 recoverable blocks located.")
+						}
+					>
+						01 SCAN FILE
+					</button>
+					<button
+						type="button"
+						disabled={stage < 1}
+						onClick={() =>
+							run(2, "Block 2203-C verified. Translation key accepted.")
+						}
+					>
+						02 VERIFY BLOCK
+					</button>
+					<button
+						className="primary"
+						type="button"
+						disabled={stage < 2 || decrypting || stage === 3}
+						onClick={startDecryption}
+					>
+						{decrypting ? "DECRYPTING..." : "03 DECRYPT"}
+					</button>
+				</div>
+				<div
+					className={`log-status stage-${stage} ${decrypting ? "is-running" : ""}`}
+				>
+					<i />
+					{decrypting ? "PROCESSING" : stage === 3 ? "DECRYPTED" : "CORRUPTED"}
+				</div>
+			</header>
+			<div className="log-workspace">
+				<aside className="log-explorer">
+					<h2>ARCHIVE EXPLORER</h2>
+					<p>▾ REDACTED</p>
+					<button
+						className={selectedFile === "core" ? "selected" : ""}
+						type="button"
+						onClick={() => setSelectedFile("core")}
+					>
+						◇ CORE-C4-TUNNELS.DAT <small>TX!</small>
+					</button>
+					<button
+						className={selectedFile === "system" ? "selected" : ""}
+						type="button"
+						onClick={() => setSelectedFile("system")}
+					>
+						◇ tech19.m.sys.log <small>ERR</small>
+					</button>
+					<p>▾ RECOVERED [{stage === 3 ? 3 : 0}]</p>
+					{stage === 3 &&
+						englishRecoveredLogs.map((log, index) => (
+							<button
+								className={`recovered-file ${selectedFile === `log-${index}` ? "selected" : ""}`}
+								type="button"
+								key={log.author}
+								onClick={() => openRecoveredLog(index)}
+							>
+								└ LOG_0{index + 1}_{log.author} <small>OK</small>
+							</button>
+						))}
+					<div className="integrity">
+						<span>FILE INTEGRITY</span>
+						<b>{decrypting ? decryptProgress : [8, 34, 67, 100][stage]}%</b>
+						<i>
+							<em
+								style={{
+									width: `${decrypting ? decryptProgress : [8, 34, 67, 100][stage]}%`,
+								}}
+							/>
+						</i>
+					</div>
+				</aside>
+				<main className="log-document">
+					<div className="editor-tab">
+						{selectedFile === "system"
+							? "tech19.m.sys.log"
+							: selectedFile.startsWith("log-")
+								? `RECOVERED_LOG_0${Number(selectedFile.slice(4)) + 1}.txt`
+								: "CORE-C4-TUNNELS.DAT"}{" "}
+						<span>●</span>
+					</div>
+					<div className="document-scroll" ref={documentScrollRef}>
+						<div className="document-meta">
+							<span>CLASSIFIED // ARCHIVE NODE Z21-04</span>
+							<b>TX_FILE_FAILURE_CORRUPTED</b>
+						</div>
+						<h1>CORE-C4 / TUNNEL SIGNAL LOG</h1>
+						<pre className="system-lines">{`>>> RETRIEVE FILE: /archive/logs/redacted/CORE-C4-TUNNELS.DAT\n>>> STATUS: CORRUPTED\n[SYSTEM WARNING] — SOS SIGNAL FAILED\n[ERROR] — NO RESPONSE FROM MAIN HUB\n[TAG] — ENTITY PRESENCE CONFIRMED :: SECTOR T-17`}</pre>
+						<section className={`cipher-block ${stage >= 2 ? "decoded" : ""}`}>
+							<header>
+								<span>BLOCK 2203-C</span>
+								<b>{stage >= 2 ? "TRANSLATED" : "ENCRYPTED"}</b>
+							</header>
+							<code>
+								- .... .. ... ..--.- - . -..- - ..--.- ..-. .. .-.. . ..--.- ..
+								... ..--.- -.-. --- .-. .-. ..- .--. - . -..
+							</code>
+							{stage >= 2 && (
+								<p>
+									THIS_FILE_IS_CORRUPTED : ERROR : CODE : 2203 :
+									DECRYPTION_ERROR
+								</p>
+							)}
+						</section>
+						{selectedFile === "system" && (
+							<div className="system-file-notice">
+								<b>tech19.m.sys.log</b>
+								<span>Source process terminated unexpectedly.</span>
+								<code>
+									TX_FILE_FAILURE_CORRUPTED // MAIN HUB UNREACHABLE // SIGNAL
+									LOST
+								</code>
+							</div>
+						)}
+						{stage < 3 ? (
+							<div className="locked-logs">
+								<span>[LOCKED]</span>
+								<b>3 PERSONNEL LOGS ENCRYPTED</b>
+								<small>
+									{decrypting
+										? "Decryption process running in terminal..."
+										: "Run the decryption sequence to restore entries"}
+								</small>
+							</div>
+						) : (
+							englishRecoveredLogs.map((log, index) => (
+								<article
+									id={`recovered-log-${index}`}
+									className={`recovered-log ${selectedFile === `log-${index}` ? "is-selected" : ""}`}
+									key={log.author}
+								>
+									<header>
+										<b>LOG 0{index + 1}</b>
+										<span>{log.author}</span>
+										<time>{log.time}</time>
+									</header>
+									<p>{log.text}</p>
+								</article>
+							))
+						)}
+						{stage === 3 && (
+							<div className="final-entry">
+								UNKNOWN ORIGIN // MESSAGE DETECTED IN STATIC
+								<br />
+								<b>"...do not close your eyes..."</b>
+								<small>ALL SIGNALS LOST // END OF FILE</small>
+							</div>
+						)}
+					</div>
+				</main>
+			</div>
+			<section className="log-terminal">
+				<header>
+					<button
+						className={`terminal-tab ${terminalView === "terminal" ? "active" : ""}`}
+						type="button"
+						onClick={() => setTerminalView("terminal")}
+					>
+						TERMINAL
+					</button>
+					<button
+						className={`terminal-tab ${terminalView === "output" ? "active" : ""}`}
+						type="button"
+						onClick={() => setTerminalView("output")}
+					>
+						OUTPUT
+					</button>
+					<div className="terminal-tools">
+						<button
+							type="button"
+							onClick={() => navigator.clipboard?.writeText(history.join("\n"))}
+						>
+							COPY OUTPUT
+						</button>
+						<button type="button" onClick={() => setHistory([])}>
+							CLEAR
+						</button>
+					</div>
+					<b>
+						{terminalView === "terminal" ? "DECIPHER SHELL" : "PROCESS LOG"}
+					</b>
+				</header>
+				<div
+					className="terminal-output"
+					ref={terminalRef}
+					tabIndex="0"
+					aria-label="Decryption terminal output"
+				>
+					{(terminalView === "output"
+						? history.filter(
+								(line) =>
+									line.includes("[") ||
+									line.includes("COMPLETE") ||
+									line.includes("located") ||
+									line.includes("accepted"),
+							)
+						: history
+					).map((line, index) => (
+						<pre key={`${line}-${index}`}>{line}</pre>
+					))}
+				</div>
+				{terminalView === "terminal" ? (
+					<form onSubmit={submit}>
+						<label>aro@z21:~/redacted $</label>
+						<input
+							value={command}
+							onChange={(e) => setCommand(e.target.value)}
+							placeholder="enter command..."
+							autoComplete="off"
+							aria-label="Terminal command"
+						/>
+						<button type="submit">RUN ↵</button>
+					</form>
+				) : (
+					<footer className="output-footer">
+						READ-ONLY PROCESS OUTPUT // {history.length} EVENTS CAPTURED
+					</footer>
+				)}
+			</section>
+		</section>
+	);
+}
+
 function VisionApp() {
 	const [activeContact, setActiveContact] = useState("Margarite Chen");
 	return (
@@ -1585,27 +2197,68 @@ function VisionApp() {
 						<span>{label}</span>
 					</button>
 				))}
-				<small>LOCAL NODE<br />Z21-04</small>
+				<small>
+					LOCAL NODE
+					<br />
+					Z21-04
+				</small>
 			</aside>
 			<div className="vision-contacts">
-				<header><span>DIRECT CHANNELS</span><b>2</b></header>
+				<header>
+					<span>DIRECT CHANNELS</span>
+					<b>2</b>
+				</header>
 				{["Margarite Chen", "Bart Kowalski"].map((contact, index) => (
-					<button type="button" className={activeContact === contact ? "active" : ""} key={contact} onClick={() => setActiveContact(contact)}>
+					<button
+						type="button"
+						className={activeContact === contact ? "active" : ""}
+						key={contact}
+						onClick={() => setActiveContact(contact)}
+					>
 						<img src={asset("files/img/manager.png")} alt="" />
-						<span><strong>{contact}</strong><small>{index ? "SIGNAL LOST" : "LAST SEEN 23:31"}</small></span>
+						<span>
+							<strong>{contact}</strong>
+							<small>{index ? "SIGNAL LOST" : "LAST SEEN 23:31"}</small>
+						</span>
 					</button>
 				))}
 			</div>
 			<div className="vision-chat">
-				<header><div><strong>{activeContact}</strong><span>SECURE INTERNAL CHANNEL</span></div><b>OFFLINE</b></header>
-				<main><div className="channel-date">14 DEC 2024 · INCIDENT NIGHT</div><p><span>23:28</span> Pressure readings are drifting again. D-sector instruments disagree with the locks.</p><p><span>23:31</span> Ryo went below to check the manual array. No response on maintenance frequency.</p><div className="channel-alert">NETWORK ISOLATION ACTIVE<br /><small>MESSAGES CANNOT BE DELIVERED</small></div></main>
-				<footer><input disabled placeholder="Channel unavailable" /><button type="button" disabled>SEND</button></footer>
+				<header>
+					<div>
+						<strong>{activeContact}</strong>
+						<span>SECURE INTERNAL CHANNEL</span>
+					</div>
+					<b>OFFLINE</b>
+				</header>
+				<main>
+					<div className="channel-date">14 DEC 2024 · INCIDENT NIGHT</div>
+					<p>
+						<span>23:28</span> Pressure readings are drifting again. D-sector
+						instruments disagree with the locks.
+					</p>
+					<p>
+						<span>23:31</span> Ryo went below to check the manual array. No
+						response on maintenance frequency.
+					</p>
+					<div className="channel-alert">
+						NETWORK ISOLATION ACTIVE
+						<br />
+						<small>MESSAGES CANNOT BE DELIVERED</small>
+					</div>
+				</main>
+				<footer>
+					<input disabled placeholder="Channel unavailable" />
+					<button type="button" disabled>
+						SEND
+					</button>
+				</footer>
 			</div>
 		</section>
 	);
 }
 
-function StartMenu({ open, openWindow, toggleWindow }) {
+function StartMenu({ open, toggleWindow }) {
 	return (
 		<section className={`start-menu ${open ? "is-open" : ""}`}>
 			<div className="start-menu-main">
@@ -1633,9 +2286,18 @@ function StartMenu({ open, openWindow, toggleWindow }) {
 				</section>
 				<section className="news-list">
 					{[
-						["SECTOR D-Z21 ISOLATED", "Emergency pressure protocol remains active. All transit to lower technical levels is suspended."],
-						["NETWORK DEGRADED", "External uplink unavailable. Personnel records are operating from the last verified local cache."],
-						["CONTAMINATION NOTICE", "Respiratory protection is mandatory near sewage shafts, drainage routes, and metro access tunnels."],
+						[
+							"SECTOR D-Z21 ISOLATED",
+							"Emergency pressure protocol remains active. All transit to lower technical levels is suspended.",
+						],
+						[
+							"NETWORK DEGRADED",
+							"External uplink unavailable. Personnel records are operating from the last verified local cache.",
+						],
+						[
+							"CONTAMINATION NOTICE",
+							"Respiratory protection is mandatory near sewage shafts, drainage routes, and metro access tunnels.",
+						],
 					].map(([title, copy], item) => (
 						<article key={title}>
 							<img src={asset("files/img/document.png")} alt="" />
@@ -1649,10 +2311,10 @@ function StartMenu({ open, openWindow, toggleWindow }) {
 				</section>
 			</div>
 			<footer className="start-menu-footer">
-				<button type="button" onClick={() => openWindow("profile")}>
+				<div className="operator-identity">
 					<img src={asset("files/img/profile-user.png")} alt="" />
 					<span>ARO-Z21 Local Operator</span>
-				</button>
+				</div>
 				<button type="button" title="Power">
 					<img src={asset("files/img/power.png")} alt="" />
 				</button>
@@ -1721,30 +2383,35 @@ function useDateTime() {
 }
 
 function useViewportScale() {
-  const measure = () => {
-    const expanded = window.innerWidth >= 1920 && window.innerHeight >= 1080
-    const screenRatio = Math.min(window.innerWidth / 1920, window.innerHeight / 1080)
-    const scale = expanded ? Math.min(1.18, 1 + (screenRatio - 1) * 0.32) : screenRatio
-    const width = expanded ? window.innerWidth / scale : 1920
-    const height = expanded ? window.innerHeight / scale : 1080
-    return {
-      scale,
-      expanded,
-      width,
-      height,
-      left: expanded ? 0 : Math.max(0, (window.innerWidth - 1920 * scale) / 2),
-      top: expanded ? 0 : Math.max(0, (window.innerHeight - 1080 * scale) / 2),
-    }
-  }
-  const [viewport, setViewport] = useState(measure)
+	const measure = () => {
+		const expanded = window.innerWidth >= 1920 && window.innerHeight >= 1080;
+		const screenRatio = Math.min(
+			window.innerWidth / 1920,
+			window.innerHeight / 1080,
+		);
+		const scale = expanded
+			? Math.min(1.18, 1 + (screenRatio - 1) * 0.32)
+			: screenRatio;
+		const width = expanded ? window.innerWidth / scale : 1920;
+		const height = expanded ? window.innerHeight / scale : 1080;
+		return {
+			scale,
+			expanded,
+			width,
+			height,
+			left: expanded ? 0 : Math.max(0, (window.innerWidth - 1920 * scale) / 2),
+			top: expanded ? 0 : Math.max(0, (window.innerHeight - 1080 * scale) / 2),
+		};
+	};
+	const [viewport, setViewport] = useState(measure);
 
-  useEffect(() => {
-    const update = () => setViewport(measure())
-    window.addEventListener('resize', update)
-    return () => window.removeEventListener('resize', update)
-  }, [])
+	useEffect(() => {
+		const update = () => setViewport(measure());
+		window.addEventListener("resize", update);
+		return () => window.removeEventListener("resize", update);
+	}, []);
 
-  return viewport
+	return viewport;
 }
 
 function clamp(value, min, max) {
