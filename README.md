@@ -106,7 +106,7 @@ The original [Project ARO](https://github.com/AlekdSANS/ARO) remains available a
 
 ## Status
 
-ARO Renewal is under active development. Applications, story content, responsive behavior, and the underlying architecture will continue to evolve.
+ARO Renewal is under development even though not that active because i don't have much time for it. Applications, story content, responsive behavior, and the underlying architecture will continue to evolve.
 
 ---
 
