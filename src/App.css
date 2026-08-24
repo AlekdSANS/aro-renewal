@@ -246,7 +246,7 @@ button {
 
 .file-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
   align-content: start;
   gap: 20px;
   padding: 24px;
@@ -532,7 +532,7 @@ button {
 }
 
 .explorer-content .file-item {
-  height: 184px;
+  height: 230px;
   border: 1px solid transparent;
 }
 
@@ -630,7 +630,7 @@ button {
 }
 
 .file-item {
-  height: 188px;
+  height: 230px;
   display: grid;
   justify-items: center;
   align-content: start;
@@ -646,14 +646,11 @@ button {
   -webkit-user-drag: none;
 }
 .file-item span {
-  max-width: 130px;
-  font-size: 17px;
+  max-width: 200px;
+  font-size: 13px;
   line-height: 1.25;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
+  overflow-wrap: anywhere;
+  text-align: center;
 }
 .file-item small {
   max-width: 140px;
