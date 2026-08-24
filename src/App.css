@@ -12,9 +12,7 @@ button {
   background: transparent;
   color: #fff;
   cursor: pointer;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
 }
 
 .desktop-icon:hover,
@@ -43,7 +41,7 @@ button {
   min-width: 1920px;
   min-height: 1008px;
   overflow: hidden;
-  background: #121212 url("/files/img/wallpaper.jpg") center/cover no-repeat;
+  background: #121212 url("/files/img/wallpaper.webp") center/cover no-repeat;
   isolation: isolate;
 }
 
@@ -53,7 +51,7 @@ button {
   z-index: 10000;
   pointer-events: none;
   opacity: 0.08;
-  background: url("/files/gif/static_noise.gif") center/340px repeat;
+  background: url("/files/gif/static_noise.webp") center/340px repeat;
 }
 
 .desktop-icons {
@@ -78,8 +76,7 @@ button {
 .desktop-icon img {
   width: 84px;
   height: 84px;
-  -o-object-fit: contain;
-     object-fit: contain;
+  object-fit: contain;
   -webkit-user-drag: none;
 }
 .desktop-icon span {
@@ -120,9 +117,7 @@ button {
 }
 .window.is-resizing {
   transition: none;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
 }
 .window.is-maximized {
   border-radius: 0;
@@ -207,9 +202,7 @@ button {
   background: #17201d;
   border-bottom: 1px solid #48544f;
   cursor: move;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
 }
 .window-header strong {
   padding-left: 18px;
@@ -427,8 +420,7 @@ button {
 .explorer-sidebar button img {
   width: 25px;
   height: 25px;
-  -o-object-fit: contain;
-     object-fit: contain;
+  object-fit: contain;
   filter: grayscale(0.55) saturate(0.7);
 }
 
@@ -650,8 +642,7 @@ button {
   width: 120px;
   height: 120px;
   border-radius: 16px;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
   -webkit-user-drag: none;
 }
 .file-item span {
@@ -732,8 +723,7 @@ button {
 .menu-app-grid img {
   width: 58px;
   height: 58px;
-  -o-object-fit: contain;
-     object-fit: contain;
+  object-fit: contain;
 }
 
 .news-list {
@@ -782,8 +772,7 @@ button {
 .news-list img {
   width: 64px;
   height: 64px;
-  -o-object-fit: contain;
-     object-fit: contain;
+  object-fit: contain;
   background: #000;
 }
 .news-list h2 {
@@ -833,9 +822,7 @@ button {
   margin: 0 18px;
   padding: 0 18px;
   color: #d8dfdb;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
   cursor: default;
 }
 
@@ -941,8 +928,7 @@ button {
 .intro video {
   width: 100%;
   height: 100%;
-  -o-object-fit: cover;
-     object-fit: cover;
+  object-fit: cover;
 }
 
 .skip-intro {
@@ -971,9 +957,7 @@ button {
   color: #fff;
   font-size: 24px;
   cursor: pointer;
-  -webkit-user-select: none;
-     -moz-user-select: none;
-          user-select: none;
+  user-select: none;
 }
 
 .media-overlay {
@@ -1016,8 +1000,7 @@ button {
   border: 4px solid #fff;
   border-radius: 10px;
   background: #000;
-  -o-object-fit: contain;
-     object-fit: contain;
+  object-fit: contain;
 }
 
 .media-frame--video {
@@ -1594,10 +1577,8 @@ button {
 .personnel-sidebar .portrait-frame img {
   width: 100%;
   height: 100%;
-  -o-object-fit: cover;
-     object-fit: cover;
-  -o-object-position: center 75%;
-     object-position: center 75%;
+  object-fit: cover;
+  object-position: center 75%;
   opacity: 0.75;
 }
 .personnel-sidebar .portrait-frame::after {
@@ -1817,8 +1798,7 @@ button {
 }
 
 .record-list {
-  -moz-columns: 2;
-       columns: 2;
+  columns: 2;
   padding-left: 26px;
 }
 
@@ -2741,7 +2721,6 @@ button {
   padding: 10px 16px;
   border-right: 1px solid #39423f;
   border-bottom: 1px solid #39423f;
-  width: -moz-max-content;
   width: max-content;
   color: #bac4bf;
   font-size: 9px;
@@ -3101,9 +3080,7 @@ button {
   padding: 12px 17px;
   overflow: auto;
   cursor: text;
-  -webkit-user-select: text;
-     -moz-user-select: text;
-          user-select: text;
+  user-select: text;
   scrollbar-width: thin;
   scrollbar-color: #53645c #151c1a;
 }
@@ -3198,4 +3175,6 @@ button {
 .recovered-log.is-selected {
   border-left-color: #b1d2bf;
   box-shadow: 0 0 0 2px #769484 inset;
-}/*# sourceMappingURL=App.css.map */
+}
+
+/*# sourceMappingURL=App.css.map */

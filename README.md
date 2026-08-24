@@ -88,8 +88,8 @@ Open the local address printed by Vite in your browser.
 
 ```text
 aro-renewal/
-├── files/          # Story documents and media
-├── public/         # Public static assets
+├── public/         # Vercel-served static assets
+│   └── files/      # Story documents and media
 ├── src/
 │   ├── assets/     # Interface assets
 │   ├── scss/       # Sass modules and partials

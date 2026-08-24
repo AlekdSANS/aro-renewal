@@ -1,7 +1,8 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import "./App.scss";
 
-const asset = (path) => `/${path}`;
+const asset = (path) =>
+	`${import.meta.env.BASE_URL}${path.replace(/^\/+/, "")}`;
 
 const WINDOW_PRESETS = {
 	videos: {
@@ -40,42 +41,42 @@ const videos = [
 	{
 		id: "preview1",
 		title: "Incident - h232",
-		thumb: "files/img/preview3.png",
+		thumb: "files/img/preview3.webp",
 		src: "files/mp4/video1.mp4",
 		meta: "CAM D-Z21 · 23:14",
 	},
 	{
 		id: "preview2",
 		title: "Our newest invention",
-		thumb: "files/img/preview4.png",
+		thumb: "files/img/preview4.webp",
 		src: "files/mp4/video2.mp4",
 		meta: "ARO MEDIA · INTERNAL",
 	},
 	{
 		id: "preview3",
 		title: "Incident - h433",
-		thumb: "files/img/preview2.png",
+		thumb: "files/img/preview2.webp",
 		src: "files/mp4/video3.mp4",
 		meta: "CAM H-433 · DAMAGED",
 	},
 	{
 		id: "preview4",
 		title: "Incident - b413",
-		thumb: "files/img/preview1.png",
+		thumb: "files/img/preview1.webp",
 		src: "files/mp4/video4.mp4",
 		meta: "CAM B-413 · 23:26",
 	},
 	{
 		id: "preview5",
 		title: "Incident - ca13",
-		thumb: "files/img/preview3.png",
+		thumb: "files/img/preview3.webp",
 		src: "files/mp4/video5.mp4",
 		meta: "CAM CA-13 · CORRUPT",
 	},
 	{
 		id: "preview6",
 		title: "Psychological weapon",
-		thumb: "files/img/preview4.png",
+		thumb: "files/img/preview4.webp",
 		src: "files/mp4/video6.mp4",
 		meta: "RESEARCH MEDIA · L3",
 	},
@@ -103,21 +104,21 @@ const documents = [
 ];
 
 const menuApps = [
-	{ id: "browser", label: "Browser", icon: "files/img/internet.png" },
+	{ id: "browser", label: "Browser", icon: "files/img/internet.webp" },
 	{
 		id: "vision",
 		label: "Vision",
-		icon: "files/img/house_black.png",
+		icon: "files/img/house_black.webp",
 		invert: true,
 	},
-	{ id: "vscode", label: "Log Checker", icon: "files/img/visual-studio.png" },
+	{ id: "vscode", label: "Log Checker", icon: "files/img/visual-studio.webp" },
 	{
 		id: "profile",
 		label: "Profile",
-		icon: "files/img/manager.png",
+		icon: "files/img/manager.webp",
 		invert: true,
 	},
-	{ id: "security", label: "Security", icon: "files/img/vision.png" },
+	{ id: "security", label: "Security", icon: "files/img/vision.webp" },
 	{
 		id: "settings",
 		label: "Settings",
@@ -127,21 +128,21 @@ const menuApps = [
 ];
 
 const taskbarApps = [
-	{ id: "browser", icon: "files/img/internet.png", label: "Browser" },
+	{ id: "browser", icon: "files/img/internet.webp", label: "Browser" },
 	{
 		id: "vision",
-		icon: "files/img/house_black.png",
+		icon: "files/img/house_black.webp",
 		label: "Vision",
 		invert: true,
 	},
-	{ id: "vscode", icon: "files/img/visual-studio.png", label: "Log Checker" },
+	{ id: "vscode", icon: "files/img/visual-studio.webp", label: "Log Checker" },
 	{
 		id: "profile",
-		icon: "files/img/manager.png",
+		icon: "files/img/manager.webp",
 		label: "Profile",
 		invert: true,
 	},
-	{ id: "security", icon: "files/img/vision.png", label: "Security" },
+	{ id: "security", icon: "files/img/vision.webp", label: "Security" },
 ];
 
 function App() {
@@ -576,7 +577,7 @@ function App() {
 							key={folder.id}
 							onClick={() => folder.id !== "archive" && toggleWindow(folder.id)}
 						>
-							<img src={asset("files/img/folder.png")} alt="" />
+							<img src={asset("files/img/folder.webp")} alt="" />
 							<span>{folder.label}</span>
 						</button>
 					))}
@@ -637,14 +638,14 @@ function App() {
 						items={[
 							...documents.map((doc) => ({
 								...doc,
-								icon: "files/img/pdf.png",
+								icon: "files/img/pdf.webp",
 								mediaType: "pdf",
 							})),
 							{
 								id: "audio1",
 								label: "sound1.mp3",
 								src: "files/mp3/audio1.MP3",
-								icon: "files/img/mp3.png",
+								icon: "files/img/mp3.webp",
 								mediaType: "audio",
 								meta: "AUDIO TRACE · UNKNOWN",
 							},
@@ -743,7 +744,7 @@ function App() {
 						className="start-button"
 						onClick={() => setMenuOpen((open) => !open)}
 					>
-						<img src={asset("files/img/letter-a.png")} alt="ARO" />
+						<img src={asset("files/img/letter-a.webp")} alt="ARO" />
 					</button>
 					<label className="taskbar-search">
 						<span className="search-mark">Search</span>
@@ -773,21 +774,21 @@ function App() {
 					<button type="button" title="Hidden icons">
 						<img
 							className="invert"
-							src={asset("files/img/up-arrow.png")}
+							src={asset("files/img/up-arrow.webp")}
 							alt=""
 						/>
 					</button>
 					<button type="button" title="Wi-Fi">
 						<img
 							className="invert"
-							src={asset("files/img/no-wifi.png")}
+							src={asset("files/img/no-wifi.webp")}
 							alt=""
 						/>
 					</button>
 					<button type="button" title="Volume">
 						<img
 							className="invert"
-							src={asset("files/img/volume.png")}
+							src={asset("files/img/volume.webp")}
 							alt=""
 						/>
 					</button>
@@ -1003,7 +1004,7 @@ function ExplorerApp({ title, path, items, onOpen }) {
 							}}
 							key={id}
 						>
-							<img src={asset("files/img/folder.png")} alt="" />
+							<img src={asset("files/img/folder.webp")} alt="" />
 							<span>{label}</span>
 						</button>
 					))}
@@ -1060,7 +1061,7 @@ function ExplorerApp({ title, path, items, onOpen }) {
 						))}
 						{visibleItems.length === 0 && (
 							<div className="empty-folder">
-								<img src={asset("files/img/folder.png")} alt="" />
+								<img src={asset("files/img/folder.webp")} alt="" />
 								<strong>No matching records</strong>
 								<span>Change the category or search term.</span>
 							</div>
@@ -1559,7 +1560,7 @@ function ProfileApp() {
 				<aside className="personnel-sidebar">
 					<div className="portrait-frame">
 						<img
-							src={asset("files/img/employee.png")}
+							src={asset("files/img/employee.webp")}
 							alt="Personnel file portrait"
 						/>
 						<span>FILE IMAGE // 2024</span>
@@ -2193,7 +2194,7 @@ function VisionApp() {
 				<div className="vision-mark">V</div>
 				{["Profile", "Messages", "Channels"].map((label) => (
 					<button type="button" key={label}>
-						<img src={asset("files/img/profile-user.png")} alt="" />
+						<img src={asset("files/img/profile-user.webp")} alt="" />
 						<span>{label}</span>
 					</button>
 				))}
@@ -2215,7 +2216,7 @@ function VisionApp() {
 						key={contact}
 						onClick={() => setActiveContact(contact)}
 					>
-						<img src={asset("files/img/manager.png")} alt="" />
+						<img src={asset("files/img/manager.webp")} alt="" />
 						<span>
 							<strong>{contact}</strong>
 							<small>{index ? "SIGNAL LOST" : "LAST SEEN 23:31"}</small>
@@ -2300,7 +2301,7 @@ function StartMenu({ open, toggleWindow }) {
 						],
 					].map(([title, copy], item) => (
 						<article key={title}>
-							<img src={asset("files/img/document.png")} alt="" />
+							<img src={asset("files/img/document.webp")} alt="" />
 							<div>
 								<small>ARO BULLETIN 0{item + 1}</small>
 								<h2>{title}</h2>
@@ -2312,11 +2313,11 @@ function StartMenu({ open, toggleWindow }) {
 			</div>
 			<footer className="start-menu-footer">
 				<div className="operator-identity">
-					<img src={asset("files/img/profile-user.png")} alt="" />
+					<img src={asset("files/img/profile-user.webp")} alt="" />
 					<span>ARO-Z21 Local Operator</span>
 				</div>
 				<button type="button" title="Power">
-					<img src={asset("files/img/power.png")} alt="" />
+					<img src={asset("files/img/power.webp")} alt="" />
 				</button>
 			</footer>
 		</section>
