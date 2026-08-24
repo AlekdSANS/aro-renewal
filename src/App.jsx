@@ -46,37 +46,16 @@ const videos = [
 		meta: "CAM D-Z21 · 23:14",
 	},
 	{
-		id: "preview2",
-		title: "Our newest invention",
-		thumb: "files/img/preview4.webp",
-		src: "files/mp4/video2.mp4",
-		meta: "ARO MEDIA · INTERNAL",
-	},
-	{
-		id: "preview3",
-		title: "Incident - h433",
-		thumb: "files/img/preview2.webp",
-		src: "files/mp4/video3.mp4",
-		meta: "CAM H-433 · DAMAGED",
-	},
-	{
-		id: "preview4",
-		title: "Incident - b413",
-		thumb: "files/img/preview1.webp",
-		src: "files/mp4/video4.mp4",
-		meta: "CAM B-413 · 23:26",
-	},
-	{
 		id: "preview5",
 		title: "Incident - ca13",
-		thumb: "files/img/preview3.webp",
+		thumb: "files/img/blank.webp",
 		src: "files/mp4/video5.mp4",
 		meta: "CAM CA-13 · CORRUPT",
 	},
 	{
 		id: "preview6",
 		title: "Psychological weapon",
-		thumb: "files/img/preview4.webp",
+		thumb: "files/img/blank.webp",
 		src: "files/mp4/video6.mp4",
 		meta: "RESEARCH MEDIA · L3",
 	},
@@ -643,8 +622,8 @@ function App() {
 							})),
 							{
 								id: "audio1",
-								label: "sound1.mp3",
-								src: "files/mp3/audio1.MP3",
+								label: "my-friends-wonderful-voice-acting.mp3",
+								src: "files/mp3/my-friends-wonderful-voice-acting.mp3",
 								icon: "files/img/mp3.webp",
 								mediaType: "audio",
 								meta: "AUDIO TRACE · UNKNOWN",
@@ -2335,7 +2314,12 @@ function MediaOverlay({ media, onClose }) {
 				onClick={(event) => event.stopPropagation()}
 			>
 				{media.type === "video" && (
-					<video src={asset(media.src)} controls autoPlay />
+					<video
+						ref={setInitialVideoVolume}
+						src={asset(media.src)}
+						controls
+						autoPlay
+					/>
 				)}
 				{media.type === "audio" && (
 					<div className="audio-player">
@@ -2353,6 +2337,10 @@ function MediaOverlay({ media, onClose }) {
 			</div>
 		</div>
 	);
+}
+
+function setInitialVideoVolume(video) {
+	if (video) video.volume = 0.4;
 }
 
 function SelectionBox({ selection }) {
