@@ -3,10 +3,12 @@
   width: 1920px;
   height: 1080px;
   background: #050505;
-  display: grid;
-  grid-template-rows: 1008px 72px;
-  overflow: hidden;
-  transform-origin: top left;
+	display: grid;
+	grid-template-rows: 1008px 72px;
+	overflow: hidden;
+	border-radius: clamp(14px, 1.55vw, 32px);
+	filter: url('#crt-screen-warp');
+	transform-origin: top left;
 }
 
 .desktop {

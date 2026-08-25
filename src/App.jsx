@@ -4,6 +4,110 @@ import "./App.scss";
 const asset = (path) =>
 	`${import.meta.env.BASE_URL}${path.replace(/^\/+/, "")}`;
 
+const CRT_VERTEX_SHADER = `
+	attribute vec2 a_position;
+	varying vec2 v_uv;
+
+	void main() {
+		v_uv = a_position * 0.5 + 0.5;
+		gl_Position = vec4(a_position, 0.0, 1.0);
+	}
+`;
+
+const CRT_FRAGMENT_SHADER = `
+	precision highp float;
+
+	uniform vec2 u_resolution;
+	uniform float u_time;
+	uniform float u_curvature;
+	uniform float u_noise_amplitude;
+	uniform float u_scanline_intensity;
+	varying vec2 v_uv;
+
+	float hash(vec2 value) {
+		return fract(sin(dot(value, vec2(127.1, 311.7))) * 43758.5453123);
+	}
+
+	mat2 rotate2d(float angle) {
+		float cosine = cos(angle);
+		float sine = sin(angle);
+		return mat2(cosine, -sine, sine, cosine);
+	}
+
+	float wave_noise(vec2 point) {
+		return sin(point.x * 10.0) * sin(point.y * (3.0 + sin(u_time * 0.03))) + 0.2;
+	}
+
+	float fbm(vec2 point) {
+		point *= 1.1;
+		float value = 0.0;
+		float amplitude = 0.5 * u_noise_amplitude;
+		value += amplitude * wave_noise(point);
+		point = rotate2d(u_time * 0.012) * point * 2.0;
+		amplitude *= 0.454545;
+		value += amplitude * wave_noise(point);
+		point = rotate2d(u_time * 0.012) * point * 2.0;
+		amplitude *= 0.454545;
+		value += amplitude * wave_noise(point);
+		return value;
+	}
+
+	float flow_pattern(vec2 point) {
+		vec2 q = vec2(
+			fbm(point + vec2(1.0)),
+			fbm(rotate2d(0.035 * u_time) * point + vec2(1.0))
+		);
+		vec2 r = vec2(fbm(rotate2d(0.1) * q), fbm(q));
+		return fbm(point + r);
+	}
+
+	void main() {
+		vec2 centered = v_uv * 2.0 - 1.0;
+		float radius_squared = dot(centered, centered);
+		vec2 warped = centered * (1.0 + u_curvature * radius_squared);
+		vec2 screen_uv = warped * 0.5 + 0.5;
+
+		float outside = max(
+			max(-screen_uv.x, screen_uv.x - 1.0),
+			max(-screen_uv.y, screen_uv.y - 1.0)
+		);
+		float edge = smoothstep(0.52, 1.18, length(centered * vec2(0.9, 1.0)));
+
+		float flow = flow_pattern(screen_uv * 3.25);
+		float curved_line = screen_uv.y * u_resolution.y * 1.35;
+		curved_line += warped.x * warped.x * u_curvature * 18.0 + flow * 4.0;
+		float scan_wave = 0.5 + 0.5 * sin(curved_line * 3.14159265);
+		float scanline = pow(scan_wave, 7.0);
+
+		vec2 grain_cell = floor(screen_uv * u_resolution * 0.62);
+		float grain = hash(grain_cell + floor(u_time * 28.0)) - 0.5;
+		float chroma = hash(grain_cell * 0.71 + floor(u_time * 17.0)) - 0.5;
+		float rolling_line = exp(-pow((fract(screen_uv.y - u_time * 0.035) - 0.5) * 7.0, 2.0));
+
+		vec3 noise_tint = vec3(
+			max(chroma, 0.0) * 0.22,
+			max(grain, 0.0) * 0.3,
+			max(-chroma, 0.0) * 0.24
+		);
+		noise_tint += vec3(0.025, 0.075, 0.052) * max(flow + 0.08, 0.0);
+		float alpha = 0.012;
+		alpha += scanline * u_scanline_intensity;
+		alpha += abs(grain) * u_noise_amplitude;
+		alpha += abs(flow) * 0.032;
+		alpha += edge * 0.16;
+		alpha += rolling_line * 0.018;
+		alpha += smoothstep(-0.025, 0.035, outside) * 0.2;
+
+		gl_FragColor = vec4(noise_tint, clamp(alpha, 0.0, 0.38));
+	}
+`;
+
+const CRT_SHADER_SETTINGS = {
+	curvature: 0.42,
+	noiseAmplitude: 0.12,
+	scanlineIntensity: 0.085,
+};
+
 const WINDOW_PRESETS = {
 	videos: {
 		open: { x: 700, y: 100, width: 1160, height: 800 },
@@ -130,6 +234,7 @@ function App() {
 		() => sessionStorage.getItem("introPlayed") !== "true",
 	);
 	const [introFading, setIntroFading] = useState(false);
+	const [introStarted, setIntroStarted] = useState(false);
 	const [showIntroPlay, setShowIntroPlay] = useState(false);
 	const [menuOpen, setMenuOpen] = useState(false);
 	const [activeWindow, setActiveWindow] = useState(null);
@@ -162,7 +267,8 @@ function App() {
 	const dragRef = useRef(null);
 	const resizeRef = useRef(null);
 	const desktopRef = useRef(null);
-	const introVideoRef = useRef(null);
+	const introAudioRef = useRef(null);
+	const introEndingRef = useRef(false);
 	const dateTime = useDateTime();
 
 	const zIndexes = useMemo(
@@ -509,37 +615,66 @@ function App() {
 
 	useEffect(() => {
 		if (!introVisible) return;
-		const video = introVideoRef.current;
-		if (!video) return;
+		const audio = introAudioRef.current;
+		if (!audio) return;
+		let cancelled = false;
+		const fallbackTimer = window.setTimeout(() => {
+			if (!cancelled) setShowIntroPlay(true);
+		}, 700);
 
-		video.play().catch(() => {
-			setShowIntroPlay(true);
-		});
+		audio
+			.play()
+			.then(() => {
+				window.clearTimeout(fallbackTimer);
+				if (!cancelled) {
+					setIntroStarted(true);
+					setShowIntroPlay(false);
+				}
+			})
+			.catch(() => {
+				window.clearTimeout(fallbackTimer);
+				if (!cancelled) setShowIntroPlay(true);
+			});
+
+		return () => {
+			cancelled = true;
+			window.clearTimeout(fallbackTimer);
+		};
 	}, [introVisible]);
 
 	const endIntro = () => {
+		if (introEndingRef.current) return;
+		introEndingRef.current = true;
+		introAudioRef.current?.pause();
 		setIntroFading(true);
 		sessionStorage.setItem("introPlayed", "true");
 		window.setTimeout(() => setIntroVisible(false), 700);
 	};
 
 	const playIntro = () => {
-		introVideoRef.current?.play();
+		const audio = introAudioRef.current;
+		setIntroStarted(true);
 		setShowIntroPlay(false);
+		if (audio) {
+			audio.currentTime = 0;
+			audio.play().catch(() => undefined);
+		}
 	};
 
 	return (
-		<div
-			className={`aro-shell ${viewportScale.expanded ? "is-expanded" : ""}`}
-			style={{
-				transform: `scale(${viewportScale.scale})`,
-				left: viewportScale.left,
-				top: viewportScale.top,
-				width: viewportScale.width,
-				height: viewportScale.height,
-				gridTemplateRows: `${viewportScale.height - 72}px 72px`,
-			}}
-		>
+		<>
+			<CrtWarpFilter />
+			<div
+				className={`aro-shell ${viewportScale.expanded ? "is-expanded" : ""}`}
+				style={{
+					transform: `scale(${viewportScale.scale})`,
+					left: viewportScale.left,
+					top: viewportScale.top,
+					width: viewportScale.width,
+					height: viewportScale.height,
+					gridTemplateRows: `${viewportScale.height - 72}px 72px`,
+				}}
+			>
 			<div
 				className="desktop"
 				ref={desktopRef}
@@ -778,23 +913,31 @@ function App() {
 				</aside>
 			</footer>
 
+			</div>
+
 			{introVisible && (
-				<div className={`intro ${introFading ? "is-fading" : ""}`}>
-					<video
-						ref={introVideoRef}
+				<div
+					className={`intro ${introStarted ? "is-running" : ""} ${
+						introFading ? "is-fading" : ""
+					}`}
+					role="dialog"
+					aria-label="ARO OS startup sequence"
+				>
+					<BootIntro onComplete={endIntro} />
+					<audio
+						ref={introAudioRef}
 						autoPlay
-						playsInline
 						preload="auto"
 						onEnded={endIntro}
 					>
 						<source
-							src={asset("files/mp4/ARO_ARIVE_02.mp4")}
-							type="video/mp4"
+							src={asset("files/audio/aro-intro.m4a")}
+							type="audio/mp4"
 						/>
-					</video>
+					</audio>
 					{showIntroPlay && (
 						<button type="button" className="play-intro" onClick={playIntro}>
-							Play Intro
+							Start Intro
 						</button>
 					)}
 					<button type="button" className="skip-intro" onClick={endIntro}>
@@ -802,9 +945,190 @@ function App() {
 					</button>
 				</div>
 			)}
-			<div className="static-overlay" aria-hidden="true" />
+			<CrtShader />
+		</>
+	);
+}
+
+function BootIntro({ onComplete }) {
+	const handleAnimationEnd = (event) => {
+		if (event.target === event.currentTarget) onComplete();
+	};
+
+	return (
+		<div
+			className="intro-sequence"
+			onAnimationEnd={handleAnimationEnd}
+			aria-hidden="true"
+		>
+			<div className="boot-console">
+				<p>ARO_OS [version 10.0.19045.6332]</p>
+				<p>(c) ARO software corporation. все права защищены.</p>
+				<p className="boot-prompt">
+					c:\Users\FPE_ggs&gt;<span className="boot-cursor" />
+				</p>
+			</div>
+
+			<div className="intro-reticle">
+				<i className="intro-corner intro-corner--tl" />
+				<i className="intro-corner intro-corner--tr" />
+				<i className="intro-corner intro-corner--br" />
+				<i className="intro-corner intro-corner--bl" />
+			</div>
+
+			<div className="intro-brand">
+				<span className="intro-brand-mark" />
+				<strong>ARO OS</strong>
+				<span className="intro-loader" />
+			</div>
 		</div>
 	);
+}
+
+function CrtWarpFilter() {
+	return (
+		<svg className="crt-filter-defs" aria-hidden="true" focusable="false">
+			<defs>
+				<filter
+					id="crt-screen-warp"
+					x="-4%"
+					y="-4%"
+					width="108%"
+					height="108%"
+					colorInterpolationFilters="sRGB"
+				>
+					<feImage
+						href={asset("files/img/crt-barrel-map.png")}
+						x="0"
+						y="0"
+						width="100%"
+						height="100%"
+						preserveAspectRatio="none"
+						result="barrel-map"
+					/>
+					<feDisplacementMap
+						in="SourceGraphic"
+						in2="barrel-map"
+						scale="48"
+						xChannelSelector="R"
+						yChannelSelector="G"
+						result="warped-screen"
+					/>
+					<feComposite
+						in="warped-screen"
+						in2="SourceAlpha"
+						operator="in"
+					/>
+				</filter>
+			</defs>
+		</svg>
+	);
+}
+
+function CrtShader() {
+	const canvasRef = useRef(null);
+
+	useEffect(() => {
+		const canvas = canvasRef.current;
+		const gl = canvas?.getContext("webgl", {
+			alpha: true,
+			antialias: false,
+			depth: false,
+			premultipliedAlpha: false,
+			preserveDrawingBuffer: false,
+		});
+		if (!canvas || !gl) {
+			canvas?.classList.add("is-fallback");
+			return undefined;
+		}
+
+		const compileShader = (type, source) => {
+			const shader = gl.createShader(type);
+			gl.shaderSource(shader, source);
+			gl.compileShader(shader);
+			if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
+				gl.deleteShader(shader);
+				return null;
+			}
+			return shader;
+		};
+
+		const vertexShader = compileShader(gl.VERTEX_SHADER, CRT_VERTEX_SHADER);
+		const fragmentShader = compileShader(gl.FRAGMENT_SHADER, CRT_FRAGMENT_SHADER);
+		if (!vertexShader || !fragmentShader) {
+			canvas.classList.add("is-fallback");
+			return undefined;
+		}
+
+		const program = gl.createProgram();
+		gl.attachShader(program, vertexShader);
+		gl.attachShader(program, fragmentShader);
+		gl.linkProgram(program);
+		if (!gl.getProgramParameter(program, gl.LINK_STATUS)) {
+			gl.deleteProgram(program);
+			gl.deleteShader(vertexShader);
+			gl.deleteShader(fragmentShader);
+			canvas.classList.add("is-fallback");
+			return undefined;
+		}
+
+		const positionBuffer = gl.createBuffer();
+		gl.bindBuffer(gl.ARRAY_BUFFER, positionBuffer);
+		gl.bufferData(
+			gl.ARRAY_BUFFER,
+			new Float32Array([-1, -1, 1, -1, -1, 1, -1, 1, 1, -1, 1, 1]),
+			gl.STATIC_DRAW,
+		);
+		gl.useProgram(program);
+
+		const positionLocation = gl.getAttribLocation(program, "a_position");
+		gl.enableVertexAttribArray(positionLocation);
+		gl.vertexAttribPointer(positionLocation, 2, gl.FLOAT, false, 0, 0);
+
+		const resolutionLocation = gl.getUniformLocation(program, "u_resolution");
+		const timeLocation = gl.getUniformLocation(program, "u_time");
+		const curvatureLocation = gl.getUniformLocation(program, "u_curvature");
+		const noiseLocation = gl.getUniformLocation(program, "u_noise_amplitude");
+		const scanlineLocation = gl.getUniformLocation(program, "u_scanline_intensity");
+		gl.uniform1f(curvatureLocation, CRT_SHADER_SETTINGS.curvature);
+		gl.uniform1f(noiseLocation, CRT_SHADER_SETTINGS.noiseAmplitude);
+		gl.uniform1f(scanlineLocation, CRT_SHADER_SETTINGS.scanlineIntensity);
+
+		const resize = () => {
+			const pixelRatio = Math.min(window.devicePixelRatio || 1, 1.5);
+			const width = Math.max(1, Math.round(window.innerWidth * pixelRatio));
+			const height = Math.max(1, Math.round(window.innerHeight * pixelRatio));
+			if (canvas.width !== width || canvas.height !== height) {
+				canvas.width = width;
+				canvas.height = height;
+			}
+			gl.viewport(0, 0, width, height);
+			gl.uniform2f(resolutionLocation, width, height);
+		};
+
+		let animationFrame;
+		const startedAt = performance.now();
+		const render = (now) => {
+			gl.uniform1f(timeLocation, (now - startedAt) / 1000);
+			gl.drawArrays(gl.TRIANGLES, 0, 6);
+			animationFrame = window.requestAnimationFrame(render);
+		};
+
+		resize();
+		window.addEventListener("resize", resize);
+		animationFrame = window.requestAnimationFrame(render);
+
+		return () => {
+			window.cancelAnimationFrame(animationFrame);
+			window.removeEventListener("resize", resize);
+			gl.deleteBuffer(positionBuffer);
+			gl.deleteProgram(program);
+			gl.deleteShader(vertexShader);
+			gl.deleteShader(fragmentShader);
+		};
+	}, []);
+
+	return <canvas ref={canvasRef} className="crt-shader" aria-hidden="true" />;
 }
 
 function AppWindow({

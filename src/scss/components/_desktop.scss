@@ -1,10 +1,31 @@
-.static-overlay {
-  position: fixed;
-  inset: 0;
-  z-index: 10000;
-  pointer-events: none;
-  opacity: 0.08;
-  background: url('/files/gif/static_noise.webp') center / 340px repeat;
+.crt-filter-defs {
+	position: fixed;
+	width: 0;
+	height: 0;
+	overflow: hidden;
+	pointer-events: none;
+}
+
+.crt-shader {
+	position: fixed;
+	inset: 0;
+	z-index: 10000;
+	display: block;
+	width: 100%;
+	height: 100%;
+	pointer-events: none;
+
+	&.is-fallback {
+		opacity: 0.1;
+		background:
+			repeating-linear-gradient(
+				to bottom,
+				transparent 0,
+				transparent 3px,
+				rgba(110, 180, 160, 0.18) 4px
+			),
+			url('/files/gif/static_noise.webp') center / 340px repeat;
+	}
 }
 
 .desktop-icons {
